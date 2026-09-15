@@ -8,11 +8,8 @@ export function formatTime(t) {
   return `${m}:${s}:${cs}`;
 }
 
-export function parseTimeString(str) {
-  const parts = str.split(':');
-  if (parts.length !== 3) return INITIAL_TIME;
-  const m = parseInt(parts[0], 10) || 0;
-  const s = parseInt(parts[1], 10) || 0;
-  const ms = parseInt(parts[2], 10) || 0;
-  return m * 60 * 1000 + s * 1000 + ms;
+export function timeFromMinutesSeconds(minutes, seconds) {
+  const m = Math.max(0, Number(minutes) || 0);
+  const s = Math.min(59, Math.max(0, Number(seconds) || 0));
+  return (m * 60 + s) * 1000;
 }

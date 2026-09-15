@@ -9,7 +9,7 @@ import LowerHalf from './LowerHalf';
 import CenterControls from './CenterControl';
 import SettingsDialog from './SettingsDialog';
 
-import { INITIAL_TIME, formatTime, parseTimeString } from './utils/time';
+import { INITIAL_TIME, formatTime, timeFromMinutesSeconds } from './utils/time';
 import useChessClock from './hooks/useChessClock';
 import { handleUpperPress, handleLowerPress } from './handlers/useTurnHandler';
 
@@ -18,10 +18,12 @@ export default function App() {
   const [lowerTime, setLowerTime] = useState(INITIAL_TIME);
   const [active, setActive] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [upperInput, setUpperInput] = useState('5:00:000');
-  const [lowerInput, setLowerInput] = useState('5:00:000');
-  const [upperIncrement, setUpperIncrement] = useState('0');
-  const [lowerIncrement, setLowerIncrement] = useState('0');
+  const [upperMinutes, setUpperMinutes] = useState(5);
+  const [upperSeconds, setUpperSeconds] = useState(0);
+  const [lowerMinutes, setLowerMinutes] = useState(5);
+  const [lowerSeconds, setLowerSeconds] = useState(0);
+  const [upperIncrement, setUpperIncrement] = useState(0);
+  const [lowerIncrement, setLowerIncrement] = useState(0);
 
   useChessClock(active, setUpperTime, setLowerTime);
 
@@ -32,9 +34,23 @@ export default function App() {
   }, [upperTime, lowerTime]);
   
 
-  function handleSetTimes() {
-    setUpperTime(parseTimeString(upperInput));
-    setLowerTime(parseTimeString(lowerInput));
+  function handleSetTimes(nextSettings) {
+    const next = nextSettings || {
+      upperMinutes,
+      upperSeconds,
+      lowerMinutes,
+      lowerSeconds,
+      upperIncrement,
+      lowerIncrement,
+    };
+    setUpperMinutes(next.upperMinutes);
+    setUpperSeconds(next.upperSeconds);
+    setLowerMinutes(next.lowerMinutes);
+    setLowerSeconds(next.lowerSeconds);
+    setUpperIncrement(next.upperIncrement);
+    setLowerIncrement(next.lowerIncrement);
+    setUpperTime(timeFromMinutesSeconds(next.upperMinutes, next.upperSeconds));
+    setLowerTime(timeFromMinutesSeconds(next.lowerMinutes, next.lowerSeconds));
     setModalVisible(false);
     setActive(null);
   }
@@ -60,14 +76,12 @@ export default function App() {
         <SettingsDialog
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
-          upperInput={upperInput}
-          setUpperInput={setUpperInput}
-          lowerInput={lowerInput}
-          setLowerInput={setLowerInput}
-          upperIncrement={upperIncrement}
-          setUpperIncrement={setUpperIncrement}
-          lowerIncrement={lowerIncrement}
-          setLowerIncrement={setLowerIncrement}
+          initialUpperMinutes={upperMinutes}
+          initialUpperSeconds={upperSeconds}
+          initialLowerMinutes={lowerMinutes}
+          initialLowerSeconds={lowerSeconds}
+          initialUpperIncrement={upperIncrement}
+          initialLowerIncrement={lowerIncrement}
           onSet={handleSetTimes}
         />
         <StatusBar style="auto" />
